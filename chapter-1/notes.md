@@ -67,9 +67,9 @@ Let $ m \geq 1 $ be an integer. We say that $ a, b \in \mathbb{Z} $ are "congrue
 
 Some key properties are:
 - (a) If $ a_1 \equiv a_2 \pmod{m} $ and $ b_1 \equiv b_2 \pmod{m} $, then:
-  \[ a_1 \pm b_1 \equiv a_2 \pm b_2 \]
+  $ a_1 \pm b_1 \equiv a_2 \pm b_2 $
   and
-  \[ a_1 b_1 \equiv a_2 b_2 \pmod{m} \]
+  $ a_1 b_1 \equiv a_2 b_2 \pmod{m} $
 
 - (b) Let $ a \in \mathbb{Z} $, $ a \cdot b \equiv 1 \pmod{m} $ for some integer $ b $ if and only if $ \gcd(a, m) = 1 $.
 
@@ -137,3 +137,132 @@ b \cdot \text{FastPower}(b, e-1), & \text{if } e \text{ is odd}
 $$
 
 > See `fast-powering-algorithm.rs` for the Rust implementation.
+
+## Prime Numbers, Unique Factorization and Finite Fields
+
+### Definition
+
+An integer $ p $ is called a prime if $ p \geq 2 $ and if and only if the only positive integers dividing $ p $ are 1 and $ p $.
+
+### Proposition
+
+If $ p $, a prime number, divides $ a \cdot b $ ($ a, b \in \mathbb{Z} $), then $ p $ divides at least one of $ a $ or $ b $.
+
+Formally:
+If $ p \mid a_1 a_2 \dots a_n $ ⇒ $ \exists j \in \mathbb{Z} $ such that $ p \mid a_j $.
+
+### Fundamental Theorem of Arithmetic
+
+Let $ a \geq 2 $, be an integer.  
+$ a $ can be factored as:
+$ a = p_1^{\alpha_1} p_2^{\alpha_2} \dots p_w^{\alpha_w} $
+
+and that factorization is unique.
+
+Here, each prime appears to a particular power.  
+This is denoted as $ \text{ord}_p(a) $, and we call it the **order**.
+
+So the factorization of $ a $ can be written as:
+$ a = \prod_{\text{primes}} p^{\text{ord}_p(a)} $
+
+We can see that $ \text{ord}_p(a) $ can be seen as a function:
+$ \text{ord}_p : \{2, 3, 5, 7, 11, 13, \dots \} \to \{0, 1, 2, 3, \dots \} $
+
+### Definition
+
+A **field** is the general name for a commutative ring in which every nonzero element has a multiplicative inverse.
+
+The field $ \mathbb{Z} / p\mathbb{Z} $ of integers modulo $ p $ has only finitely many elements.  
+It is a finite field ($ \mathbb{F}_p $).
+
+### Powers and Primitive Roots in Finite Fields
+
+### Fermat's Little Theorem
+
+Let $ p $ be a prime number and let $ a $ be any integer:
+$
+a^p \equiv
+\begin{cases}
+a \pmod{p}, & \text{if } p \mid a \\
+0 \pmod{p}, & \text{if } p \nmid a
+\end{cases}
+$
+
+### Fermat + Fast Powering Algorithm
+
+It is amazing because it lets us compute indices modulo $ p $ as:
+$ a^{-1} \equiv a^{p-2} \pmod{p} $ ⇒ alternative to Euclid’s!
+
+### Proposition
+
+Let $ p $ be a prime and let $ a $ be an integer not divisible by $ p $.  
+Suppose that $ a^h \equiv 1 \pmod{p} $ ⇒ the order of $ a $ modulo $ p $ divides $ h $. ⇒ The order of $ a $ divides $ p - 1 $.
+
+### Primitive Root Theorem
+
+Let $ p $ be a prime number.  
+Then:
+$ \exists g \in \mathbb{F}_p^* $
+whose powers give every element of $ \mathbb{F}_p^* $.
+
+$\mathbb{F}_p^* = \{ 1, g, g^2, g^3, \dots, g^{p-2} \}$
+
+Elements with this property are called **primitive roots** of $ \mathbb{F}_p $, or **generators** of $ \mathbb{F}_p $.
+
+(They are basically the numbers we use to raise to powers and generate the field.)
+
+If $ p $ is larger, $ \mathbb{F}_p $ has quite a few primitive roots.
+
+$ \mathbb{F}_p^* $ will have exactly:
+$ \varphi(p - 1) $
+primitive roots.
+
+We could also say that if $ k $ divides $ p - 1 $, then there are exactly $ \varphi(k) $ elements of $ \mathbb{F}_p^* $ having order $ k $.
+
+## Symmetric and Asymmetric Ciphers
+
+### Symmetric Ciphers
+
+Alice and Bob have shared knowledge of a secret key $ k $.
+
+We have:
+- $ k \in K $
+- $ m \in M $
+- $ c \in C $
+
+Our encryption function would be:
+$
+e : K \times M \to C
+$
+
+Set of pairs $ (k, m) $ consists of a key $ k $ and a plaintext $ m $.
+
+### Decryption Function
+
+$ d : K \times C \to M $
+
+(It has to be able to undo the effects of the encryption function.)
+
+So: $ d(k, e(k, m)) = m \quad \forall k \in K, \forall m \in M $
+
+We write the dependence on $ k $ as a subscript.  
+Then for each key $ k $, we get: $ e_k : M \to C, \quad d_k : C \to M $
+
+In other words, $ \forall k \in K $, the function $ d_k $ is the inverse function of the encryption.  
+⇒ $ e_k $ must be one-to-one since: $ e_k(m) = e_k(m') \implies m = d_k(e_k(m)) = d_k(e_k(m')) = m' $
+
+### A Successful Cipher Accomplishes
+
+1. For any $ k \in K $ and $ m \in M $, it must be easy to compute $ e_k(m) $.
+
+2. For any $ k \in K $ and $ c \in C $, it must be easy to compute $ d_k(c) $.
+
+3. Given $ c_1, c_2, \dots, c_n \in C $ encrypted using key $ k $, it must be very difficult to compute any of the corresponding plaintexts $ d_k(c_1), \dots, d_k(c_n) $ without knowing $ k $.
+
+4. Given various ciphertexts, it must be difficult to capture any of the corresponding plaintexts without the key.  
+(This is known as the → **chosen plaintext attack**.)
+
+### Encoding Scheme
+
+An encoding scheme is a method of converting one sort of data into another sort of data.
+* Page 42+: Examples of symmetric cyphers!
