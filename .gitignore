@@ -1,0 +1,15 @@
+# Rust executables
+chapter-1/fast-powering-algorithm
+chapter-1/*.exe
+chapter-1/*.out
+
+# Rust specific
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Binary files
+*.bin
+*.dll
+*.so
+*.dylib
