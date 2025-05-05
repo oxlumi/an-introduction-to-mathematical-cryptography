@@ -1,96 +1,65 @@
-# Exercise 2.6
+# Exercise 2.6 and 2.7
 
-### Given
+We are given:
 
-* Prime: \$p = 1373\$
-* Generator: \$g = 2\$
-* Alice's public value: \$A = 974\$
-* Bob's secret exponent: \$b = 871\$
+* $p = 1373$
+* $g = 2$
+* $A = g^{e_A} \mod p = 974$
+* $e_R = 871$
 
-We're going to:
-- Compute Bob's public value \$B\$
-- Compute the shared secret \$s\$
-- Find Alice's secret exponent \$a\$
+### Bob’s Public Value $B$
 
-## Bob's Public Value \$B\$
-
-We wave our math wand to compute:
+We compute:
 
 $$
-B = g^b \mod p = 2^{871} \mod 1373
+B = g^{e_R} \mod p = 2^{871} \mod 1373
 $$
 
-✅ **Rust output:**
+#### The binary expansion for that is...
 
-```
-Bob's public value B: 805
-```
+$$
+871 = 512 + 256 + 64 + 32 + 4 + 2 + 1 = (1101100111)_2
+$$
 
-Thus:
+#### Powers Modulo $p$
+
+| Power     | Computation          | Result |
+| --------- | -------------------- | ------ |
+| $2^1$     | $2$                  | 2      |
+| $2^2$     | $2^2$                | 4      |
+| $2^4$     | $(4^2) \mod 1373$    | 16     |
+| $2^8$     | $(16^2) \mod 1373$   | 256    |
+| $2^{16}$  | $(256^2) \mod 1373$  | 896    |
+| $2^{32}$  | $(896^2) \mod 1373$  | 1005   |
+| $2^{64}$  | $(1005^2) \mod 1373$ | 377    |
+| $2^{128}$ | $(377^2) \mod 1373$  | 870    |
+| $2^{256}$ | $(870^2) \mod 1373$  | 209    |
+| $2^{512}$ | $(209^2) \mod 1373$  | 1118   |
+
+#### Magic 🪄
+
+$$
+2^{871} \equiv 2^{512} \cdot 2^{256} \cdot 2^{64} \cdot 2^{32} \cdot 2^4 \cdot 2^2 \cdot 2^1 \mod 1373
+$$
+
+In steps...
+
+1. $1118 \cdot 209 \mod 1373 = 1118 \cdot 209 = 233,662 \mod 1373 = 870$
+2. $870 \cdot 377 \mod 1373 = 870 \cdot 377 = 327,990 \mod 1373 = 820$
+3. $820 \cdot 1005 \mod 1373 = 820 \cdot 1005 = 824,100 \mod 1373 = 16$
+4. $16 \cdot 16 \mod 1373 = 256 \mod 1373 = 256$
+5. $256 \cdot 4 \mod 1373 = 1024 \mod 1373 = 1024$
+6. $1024 \cdot 2 \mod 1373 = 2048 \mod 1373 = 805$
+
+And finally... our result:
 
 $$
 B = 805
 $$
 
-🎉 **Bob sends this magical number to Alice.**
-
----
-
-### ✨ Step 2: Compute the Shared Secret \$s\$
-
-The shared secret (what both Alice and Bob will magically agree on) is:
-
-$$
-s = A^b \mod p = 974^{871} \mod 1373
-$$
-
-✅ **Rust output:**
-
-```
-Shared secret s: 397
-```
-
-Thus:
-
-$$
-s = 397
-$$
-
-🎉 **Both sides now share this secret value. It's like synchronized magic!**
-
----
-
-### ✨ Step 3: Find Alice's Secret Exponent \$a\$
-
-We need to solve the mysterious equation:
-
-$$
-2^a \mod 1373 = 974
-$$
-
-✅ **Rust brute-force search output:**
-
-```
-Alice's secret exponent a: 587
-```
-
-Thus:
-
-$$
-a = 587
-$$
-
-🎉 **Alice's secret revealed!** (Don’t tell anyone, though.)
-
----
-
-## 🦀 Rust Code (Our Spellbook)
+Checking this, if we cmpute:
 
 ```rust
-use num_bigint::BigUint;
-use num_traits::{One, Zero};
-use std::time::Instant;
-
 fn mod_pow(base: &BigUint, exp: &BigUint, modulus: &BigUint) -> BigUint {
     let mut result = BigUint::one();
     let mut base = base.clone() % modulus;
@@ -105,7 +74,65 @@ fn mod_pow(base: &BigUint, exp: &BigUint, modulus: &BigUint) -> BigUint {
     }
     result
 }
+```
+We obtain `Bob's public value B: 805`. So yai! we did it ok.
 
+### Shared Secret $S$
+
+$$
+S = A^{e_R} \mod p = 974^{871} \mod 1373
+$$
+
+#### Powers Modulo $p$
+
+| Power       | Computation         | Result |
+| ----------- | ------------------- | ------ |
+| $974^1$     | $974$               | 974    |
+| $974^2$     | $974^2 \mod 1373$   | 948    |
+| $974^4$     | $(948^2) \mod 1373$ | 819    |
+| $974^8$     | $(819^2) \mod 1373$ | 405    |
+| $974^{16}$  | $(405^2) \mod 1373$ | 500    |
+| $974^{32}$  | $(500^2) \mod 1373$ | 744    |
+| $974^{64}$  | $(744^2) \mod 1373$ | 449    |
+| $974^{128}$ | $(449^2) \mod 1373$ | 951    |
+| $974^{256}$ | $(951^2) \mod 1373$ | 468    |
+| $974^{512}$ | $(468^2) \mod 1373$ | 1145   |
+
+#### Multiply Relevant Terms
+
+$$
+974^{871} \equiv 974^{512} \cdot 974^{256} \cdot 974^{64} \cdot 974^{32} \cdot 974^{16} \cdot 974^8 \cdot 974^1 \mod 1373
+$$
+
+In steps...
+
+1. $1145 \cdot 468 \mod 1373 = 535,260 \mod 1373 = 1342$
+2. $1342 \cdot 449 \mod 1373 = 602,558 \mod 1373 = 499$
+3. $499 \cdot 744 \mod 1373 = 371,256 \mod 1373 = 1134$
+4. $1134 \cdot 500 \mod 1373 = 567,000 \mod 1373 = 505$
+5. $505 \cdot 405 \mod 1373 = 204,525 \mod 1373 = 352$
+6. $352 \cdot 974 \mod 1373 = 342,448 \mod 1373 = 397$
+
+
+Soo the result is: 
+
+$$
+S = 397
+$$
+
+And we check it again, using the same function as before we obtaine: `Shared secret s: 397`. Yai!
+
+### Alice’s Secret Exponent $e_A$
+
+We solve:
+
+$$
+2^{e_A} \mod 1373 = 974
+$$
+
+Using brute-force search : D ... i'm not calculating that by hand, what were you thinking????
+
+```rust
 fn discrete_log_brute(g: &BigUint, target: &BigUint, modulus: &BigUint) -> Option<BigUint> {
     let mut power = BigUint::one();
     let mut exponent = BigUint::zero();
@@ -120,124 +147,56 @@ fn discrete_log_brute(g: &BigUint, target: &BigUint, modulus: &BigUint) -> Optio
     }
     Some(exponent)
 }
-
-fn main() {
-    let p = BigUint::from(1373u32);
-    let g = BigUint::from(2u32);
-    let a_pub = BigUint::from(974u32);
-    let b_secret = BigUint::from(871u32);
-
-    let start = Instant::now();
-
-    let b_pub = mod_pow(&g, &b_secret, &p);
-    println!("Bob's public value B: {}", b_pub);
-
-    let shared_secret = mod_pow(&a_pub, &b_secret, &p);
-    println!("Shared secret s: {}", shared_secret);
-
-    println!("Computing Alice's secret exponent (this may take time)... wait for it... waaaaaaait for it....");
-    match discrete_log_brute(&g, &a_pub, &p) {
-        Some(a_secret) => println!("Alice's secret exponent a: {}", a_secret),
-        None => println!("Could not find Alice's secret exponent"),
-    }
-
-    let duration = start.elapsed();
-    println!("Execution time: {:?}", duration);
-}
 ```
-
-✅ **Cargo Run Output:**
-
-```
-Bob's public value B: 805
-Shared secret s: 397
-Computing Alice's secret exponent (this may take time)... wait for it... waaaaaaait for it....
-Alice's secret exponent a: 587
-Execution time: 775.75µs
-```
-
----
-
-### 📝 Final Magic Summary
+Sooo out of ✨magic we get:
+$$
+e_A = 587
+$$
 
 | Quantity                      | Result |
 | ----------------------------- | ------ |
-| Bob's public \$B\$            | 805    |
-| Shared secret \$s\$           | 397    |
-| Alice's secret exponent \$a\$ | 587    |
+| Bob’s public value $B$        | 805    |
+| Shared secret $S$             | 397    |
+| Alice’s secret exponent $e_A$ | 587    |
 
-🎉✨ **Congratulations! You've completed Exercise 1 — with math, code, and crypto magic.**
 
----
+## 2.7
 
-## 🌟 Exercise 2 — Diffie-Hellman Decision Problem
-
-### Recap
-
-Given:
-
-* \$p\$, prime
-* \$g\$, generator
-* \$A = g^a \mod p\$
-* \$B = g^b \mod p\$
-* \$C\$, some candidate value
-
-We want to decide:
+We are asked: given $g, g^a, g^b, C$, can we decide if:
 
 $$
 C \stackrel{?}{=} g^{ab} \mod p
 $$
 
-This is called the **Decisional Diffie-Hellman (DDH) problem**.
+Aaand this is the ✨**Decisional Diffie-Hellman (DDH) problem**✨
 
----
+### CDH Solves DDH
 
-### ✨ Step 1: Understand the Difference
+If we can compute $g^{ab}$ (CDH), we can solve DDH:
 
-| Problem                            | Task                                    |
-| ---------------------------------- | --------------------------------------- |
-| Computational Diffie-Hellman (CDH) | Compute \$g^{ab}\$ from \$g^a, g^b\$    |
-| Decisional Diffie-Hellman (DDH)    | Decide if given \$C\$ equals \$g^{ab}\$ |
+1. Compute $g^{ab}$.
+2. Check if $C = g^{ab}$.
 
-✅ **Key idea:** If you can solve CDH, you can trivially solve DDH by computing \$g^{ab}\$ and comparing.
+Thus:
 
----
+$$
+\text{CDH} \implies \text{DDH}
+$$
 
-### ✨ Step 2: Formal Proof
+### Is DDH Hard?
 
-✅ **Proof that CDH ⇒ DDH:**
+| Group Type                        | DDH Hardness     |
+| --------------------------------- | ---------------- |
+| Prime-order multiplicative groups | Assumed hard     |
+| Elliptic curve groups             | Assumed hard     |
+| Subgroups with algebraic leaks    | Sometimes easier |
 
-Assume we have an algorithm \$\text{CDH}(g, g^a, g^b)\$ that outputs \$g^{ab}\$.
+In general, DDH is assumed hard if CDH and discrete log are hard, making it a fundamental cryptographic assumption 😃
 
-Given \$(g, g^a, g^b, C)\$:
+### Soooooo...
 
-1. Compute \$\hat{C} = \text{CDH}(g, g^a, g^b) = g^{ab}\$.
-2. Check if \$\hat{C} = C\$.
-
-✅ Done! If CDH is solvable, DDH is solved too.
-
----
-
-### ✨ Step 3: Is DDH Hard or Easy?
-
-| Group Type                 | DDH Hardness  |
-| -------------------------- | ------------- |
-| General prime-order groups | Believed hard |
-| Elliptic curve groups      | Believed hard |
-| Some subgroups with leaks  | May be easier |
-
-✅ **Conclusion:** In most cryptographic groups, DDH is assumed hard — no efficient test is known to distinguish \$g^{ab}\$ from random without solving CDH.
-
----
-
-### 🦀 Rust Sketch for DDH (Optional)
-
-```rust
-fn decisional_dh(g: &BigUint, a_pub: &BigUint, b_pub: &BigUint, c_candidate: &BigUint, p: &BigUint) -> bool {
-    let a = discrete_log_brute(g, a_pub, p).expect("Could not find a");
-    let b = discrete_log_brute(g, b_pub, p).expect("Could not find b");
-    let computed = mod_pow(g, &(a * b), p);
-    &computed == c_candidate
-}
-```
-Brute force hehe.
+| Q                    | A                                       |
+| --------------------------- | -------------------------------------------- |
+| Does solving CDH solve DDH? | Yes, by computing $g^{ab}$ and comparing     |
+| Is DDH always hard?         | Generally assumed hard, depends on the group |
+| Does solving DDH solve CDH? | No, DDH only distinguishes, not computes     |
