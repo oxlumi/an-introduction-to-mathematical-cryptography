@@ -265,4 +265,4 @@ In other words, $ \forall k \in K $, the function $ d_k $ is the inverse functio
 ### Encoding Scheme
 
 An encoding scheme is a method of converting one sort of data into another sort of data.
-* Page 42+: Examples of symmetric cyphers!
+

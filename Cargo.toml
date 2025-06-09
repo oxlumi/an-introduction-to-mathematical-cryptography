@@ -6,11 +6,3 @@ edition = "2021"
 [dependencies]
 num-bigint = "0.4"
 num-traits = "0.2"
-
-[[bin]]
-name = "main"
-path = "src/main.rs"
-
-[[bin]]
-name = "fast_powering"
-path = "src/fast_powering.rs" 
