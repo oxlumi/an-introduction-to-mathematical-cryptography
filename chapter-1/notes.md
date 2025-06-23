@@ -262,7 +262,28 @@ In other words, $ \forall k \in K $, the function $ d_k $ is the inverse functio
 4. Given various ciphertexts, it must be difficult to capture any of the corresponding plaintexts without the key.  
 (This is known as the → **chosen plaintext attack**.)
 
-### Encoding Scheme
+> An encoding scheme is a method of converting one sort of data into another sort of data.
 
-An encoding scheme is a method of converting one sort of data into another sort of data.
+## Random Bit Sequences and Symmetric Ciphers
 
+The question here is if it is possible to use a single relatively short key $k$ to securely and efficiently send long messages. One possible construction is $R: k \times \Z \rightarrow \{0,1\}$. 
+
+And it has to have the following properties:
+- $ \forall \space k \in K \space \land \forall \space j \in \Z$, it is easy to compute $R(k,j)$.
+- Given an arbitrarily long sequence of integers $j_1, ... , j_n$ and given all the values $R(k, j_1), ... , R(k, j_n)$, it is *HARD* to determine $k$.
+- Given any list of integers $j_1, ... , j_n$ and given all the values $R(k, j_1), ... , R(k, j_n)$ it is hard to guess the value of $R(k, j_n)$ with better than a 50% chance of success for any value of $j$ not already in the list.
+
+> This is a pseudorandom number generator, and it is not proven that it holds.
+
+## Asymmetric ciphers make a first appearence
+
+An asymmetric cipher has spaces of keys $K$, plaintexts $M$, and ciphertexts $C$. But, the difference with symmetric ciphers relies in the fact that an element $k \in K$ is a pair of keys:
+
+$$ K = (k_{pub}, k_{priv})$$
+
+Now, for each $k_{pub}$ there is a corresponding encryption function:
+$$e_{k_{pub}} : M \rightarrow C$$
+
+and for each private key $k_priv$ there is a corresponding decryption function:
+$$ d_{k_{priv}}: C \rightarrow M$$
+These have the property that if the pair $(k_{priv}, k_{pub}) \in K \rightarrow d_{k_{priv}}(e_{e_{pub}}(m)) = m \space \forall \in M$. 
