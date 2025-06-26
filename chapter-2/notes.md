@@ -50,3 +50,6 @@ Alice and Bob want to share a secret key for use in a symmetric cipher, but they
 > **Shared Secret:** $g^{ab} (\mod p)$
 
 **Definition.** Let $p$ be a prime number and $g$ an integer. The Diffie-Helmann Problem is teh problem of computing the value of $g^{ab} (\mod p)$ from the known value of  $g^{a} (\mod p)$ and  $g^{b} (\mod p)$.
+
+## The Elgamal Public Key Cryptosystem
+
